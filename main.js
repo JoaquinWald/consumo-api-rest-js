@@ -1,4 +1,5 @@
-const API_URL = "https://api.thecatapi.com/v1/images/search?limit=3";
+const API_URL =
+  "https://api.thecatapi.com/v1/images/search?limit=3&api_key=4f4a66e5-46aa-4de3-9bef-13d690177b37";
 
 //Promise
 /*fetch(URL)
