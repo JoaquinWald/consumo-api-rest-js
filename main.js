@@ -7,12 +7,11 @@
   });
 */
 
-const API_URL_RANDOM =
-  "https://api.thecatapi.com/v1/images/search?limit=2&api_key=4f4a66e5-46aa-4de3-9bef-13d690177b37";
-const API_URL_FAVORITES =
-  "https://api.thecatapi.com/v1/favourites?&api_key=4f4a66e5-46aa-4de3-9bef-13d690177b37";
+const API_URL_RANDOM = "https://api.thecatapi.com/v1/images/search?limit=2";
+const API_URL_FAVORITES = "https://api.thecatapi.com/v1/favourites?";
 const API_URL_FAVORITES_DELETE = (id) =>
-  `https://api.thecatapi.com/v1/favourites/${id}?&api_key=4f4a66e5-46aa-4de3-9bef-13d690177b37`;
+  `https://api.thecatapi.com/v1/favourites/${id}?`;
+const API_URL_UPLOAD = "https://api.thecatapi.com/v1/images/upload";
 
 const spanError = document.querySelector("#error");
 
@@ -25,7 +24,7 @@ const loadRandomMichis = async () => {
     console.log(data);
 
     if (resAPI.status !== 200) {
-      spanError.innerHTML = "Hubo un error: " + resAPI.status;
+      spanError.innerHTML = "Hubo un error: " + resAPI.status + data.message;
     } else {
       const img1 = document.getElementById("img1");
       const img2 = document.getElementById("img2");
@@ -45,13 +44,18 @@ const loadRandomMichis = async () => {
 
 const loadFavoritesMichis = async () => {
   try {
-    const resAPI = await fetch(API_URL_FAVORITES);
+    const resAPI = await fetch(API_URL_FAVORITES, {
+      method: "GET",
+      headers: {
+        "X-API-KEY": "4f4a66e5-46aa-4de3-9bef-13d690177b37",
+      },
+    });
     const data = await resAPI.json();
     console.log("Favorites");
     console.log(data);
 
     if (resAPI.status !== 200) {
-      spanError.innerHTML = "Hubo un error: " + resAPI.status;
+      spanError.innerHTML = "Hubo un error: " + resAPI.status + data.message;
     } else {
       const section = document.getElementById("favoritesMichis");
       section.innerHTML = "";
@@ -86,6 +90,7 @@ const saveFavoriteMichi = async (id) => {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
+      "X-API-KEY": "4f4a66e5-46aa-4de3-9bef-13d690177b37",
     },
     body: JSON.stringify({
       image_id: id,
@@ -97,7 +102,7 @@ const saveFavoriteMichi = async (id) => {
   console.log(resAPI);
 
   if (resAPI.status !== 200) {
-    spanError.innerHTML = "Hubo un error: " + resAPI.status + data;
+    spanError.innerHTML = "Hubo un error: " + resAPI.status + data.message;
   } else {
     console.log("Michi guardado en favoritos");
     loadFavoritesMichis();
@@ -107,14 +112,44 @@ const saveFavoriteMichi = async (id) => {
 const deleteFavoriteMichi = async (id) => {
   const resAPI = await fetch(API_URL_FAVORITES_DELETE(id), {
     method: "DELETE",
+    headers: {
+      "X-API-KEY": "4f4a66e5-46aa-4de3-9bef-13d690177b37",
+    },
   });
   const data = await resAPI.json();
 
   if (resAPI.status !== 200) {
-    spanError.innerHTML = "Hubo un error: " + resAPI.status + data;
+    spanError.innerHTML = "Hubo un error: " + resAPI.status + data.message;
   } else {
     console.log("Michi borrado de favoritos");
     loadFavoritesMichis();
+  }
+};
+
+const uploadMichiPhoto = async () => {
+  const form = document.querySelector("#uploadingForm");
+  const formData = new FormData(form);
+
+  console.log(formData.get("File"));
+
+  const resAPI = await fetch(API_URL_UPLOAD, {
+    method: "POST",
+    headers: {
+      "X-API-KEY": "4f4a66e5-46aa-4de3-9bef-13d690177b37",
+      // "Content-Type": "multipart/form-data",
+    },
+    body: formData,
+  });
+  const data = await resAPI.json();
+
+  if (resAPI.status !== 200) {
+    spanError.innerHTML = "Hubo un error: " + resAPI.status + data.message;
+    console.log({ data });
+  } else {
+    console.log("Foto de michi cargada :)");
+    console.log({ data });
+    console.log(data.url);
+    saveFavoriteMichi(data.id);
   }
 };
 
