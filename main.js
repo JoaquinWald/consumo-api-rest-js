@@ -6,9 +6,14 @@
     img.src = data[0].url;
   });
 */
+const api = axios.create({
+  baseURL: "https://api.thecatapi.com/v1",
+});
+api.defaults.headers.common["X-API-KEY"] =
+  "4f4a66e5-46aa-4de3-9bef-13d690177b37";
 
 const API_URL_RANDOM = "https://api.thecatapi.com/v1/images/search?limit=2";
-const API_URL_FAVORITES = "https://api.thecatapi.com/v1/favourites?";
+const API_URL_FAVORITES = "https://api.thecatapi.com/v1/favourites";
 const API_URL_FAVORITES_DELETE = (id) =>
   `https://api.thecatapi.com/v1/favourites/${id}?`;
 const API_URL_UPLOAD = "https://api.thecatapi.com/v1/images/upload";
@@ -86,23 +91,26 @@ const loadFavoritesMichis = async () => {
 };
 
 const saveFavoriteMichi = async (id) => {
-  const resAPI = await fetch(API_URL_FAVORITES, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "X-API-KEY": "4f4a66e5-46aa-4de3-9bef-13d690177b37",
-    },
-    body: JSON.stringify({
-      image_id: id,
-    }),
+  const { data, status } = await api.post("/favourites", {
+    image_id: id,
   });
-  const data = await resAPI.json();
+  // const resAPI = await fetch(API_URL_FAVORITES, {
+  //   method: "POST",
+  //   headers: {
+  //     "Content-Type": "application/json",
+  //     "X-API-KEY": "4f4a66e5-46aa-4de3-9bef-13d690177b37",
+  //   },
+  //   body: JSON.stringify({
+  //     image_id: id,
+  //   }),
+  // });
+  // const data = await resAPI.json();
 
   console.log("Save");
-  console.log(resAPI);
+  // console.log(resAPI);
 
-  if (resAPI.status !== 200) {
-    spanError.innerHTML = "Hubo un error: " + resAPI.status + data.message;
+  if (status !== 200) {
+    spanError.innerHTML = "Hubo un error: " + status + data.message;
   } else {
     console.log("Michi guardado en favoritos");
     loadFavoritesMichis();
@@ -130,7 +138,7 @@ const uploadMichiPhoto = async () => {
   const form = document.querySelector("#uploadingForm");
   const formData = new FormData(form);
 
-  console.log(formData.get("File"));
+  console.log(formData.get("file"));
 
   const resAPI = await fetch(API_URL_UPLOAD, {
     method: "POST",
@@ -142,7 +150,7 @@ const uploadMichiPhoto = async () => {
   });
   const data = await resAPI.json();
 
-  if (resAPI.status !== 200) {
+  if (resAPI.status !== 201) {
     spanError.innerHTML = "Hubo un error: " + resAPI.status + data.message;
     console.log({ data });
   } else {
